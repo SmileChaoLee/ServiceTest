@@ -56,10 +56,10 @@ public class DownloadService extends IntentService {
         System.out.println("file name: "+output.getPath());
         if (output.exists()) {
             // if file already exists, then delete the file
-            System.out.println("index.php already exist.");
+            System.out.println("admin already exist.");
             output.delete();
         } else {
-            System.out.println("index.php does not exist.");
+            System.out.println("admin does not exist.");
         }
 
         InputStream iStream = null;
@@ -78,6 +78,7 @@ public class DownloadService extends IntentService {
             result = Activity.RESULT_OK;  // successfully downloaded
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Exception.");
         } finally {
             if (iStream != null) {
                 try {

@@ -58,8 +58,9 @@ public class MainActivity extends AppCompatActivity {
     public void startDownloadService(View view) {
         Intent intent = new Intent(this,DownloadService.class);
         Bundle extras = new Bundle();
-        extras.putString("URL_PATH","http://trpgline.com/index.php");
-        extras.putString("FILENAME","index.php");
+        // extras.putString("URL_PATH","http://fescc.ca/Chinese/index.htm");
+        extras.putString("URL_PATH","https://trpgline.com/admin");
+        extras.putString("FILENAME","admin");
         extras.putString("NOTIFICATION",notification);
         intent.putExtras(extras);
         startService(intent);
