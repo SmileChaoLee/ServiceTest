@@ -58,31 +58,45 @@
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:id="@+id/buttonDownloadService"
+        android:id="@+id/buttonIntentService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="false"
         android:layout_marginTop="10dp"
-        android:text="Download Service"
+        android:text="Download Service (IntentService)"
         android:layout_below="@+id/textStatus"
         android:layout_alignLeft="@+id/textStatus"
         android:layout_alignRight="@+id/textStatus"
         android:layout_alignStart="@+id/textStatus"
         android:layout_alignEnd="@+id/textStatus"
-        android:onClick="startDownloadService"/>
+        android:onClick="startIntentService"/>
 
     <Button
-        android:id="@+id/buttonBindService"
+        android:id="@+id/buttonStartedService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:layout_marginTop="10dp"
+        android:text="Start Service (StartedService)"
+        android:layout_below="@+id/buttonIntentService"
+        android:layout_alignLeft="@+id/textStatus"
+        android:layout_alignRight="@+id/textStatus"
+        android:layout_alignStart="@+id/textStatus"
+        android:layout_alignEnd="@+id/textStatus"
+        android:onClick="startStartedService"/>
+
+    <Button
+        android:id="@+id/buttonBoundService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="false"
         android:layout_marginTop="10dp"
         android:text="Bind Service"
-        android:layout_below="@+id/buttonDownloadService"
-        android:layout_alignLeft="@+id/buttonDownloadService"
-        android:layout_alignRight="@+id/buttonDownloadService"
-        android:layout_alignStart="@+id/buttonDownloadService"
-        android:layout_alignEnd="@+id/buttonDownloadService"
-        android:onClick="startBindService" />
+        android:layout_below="@+id/buttonStartedService"
+        android:layout_alignLeft="@+id/textStatus"
+        android:layout_alignRight="@+id/textStatus"
+        android:layout_alignStart="@+id/textStatus"
+        android:layout_alignEnd="@+id/textStatus"
+        android:onClick="startBoundService" />
 
 </RelativeLayout>

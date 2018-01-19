@@ -23,12 +23,14 @@ import java.net.URL;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class DownloadService extends IntentService {
+public class DownloadIntentService extends IntentService {
+
+    public static final String ActionName = "com.smile.servicetest.DownloadIntentService";
 
     private int result = Activity.RESULT_CANCELED;
 
-    public DownloadService() {
-        super("DownloadService");
+    public DownloadIntentService() {
+        super("DownloadIntentService");
     }
 
 
@@ -97,7 +99,8 @@ public class DownloadService extends IntentService {
         }
 
         // publish the result using sendBroadcast
-        Intent notificationIntent = new Intent(notification);
+        // Intent notificationIntent = new Intent(notification);
+        Intent notificationIntent = new Intent(ActionName);
 
         /*
             notificationIntent.putExtra(FILEPATH,output.getAbsolutePath());

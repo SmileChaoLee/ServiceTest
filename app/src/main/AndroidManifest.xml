@@ -24,12 +24,16 @@
         </activity>
 
         <service
-            android:name=".DownloadService"
-            android:exported="false"></service>
+            android:name=".DownloadIntentService"
+            android:exported="false">
+        </service>
+
         <service
-            android:name=".LocalService"
+            android:name=".MyStartedService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true">
+        </service>
+
     </application>
 
 </manifest>
