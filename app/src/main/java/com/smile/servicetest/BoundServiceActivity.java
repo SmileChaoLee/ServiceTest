@@ -42,7 +42,6 @@ public class BoundServiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
-                    messageText.setText("Music playing.");
                     myBoundService.startPlay();
                 }
             }
@@ -52,7 +51,6 @@ public class BoundServiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
-                    messageText.setText("Music paused.");
                     myBoundService.pausePlay();
                 }
             }
@@ -82,13 +80,11 @@ public class BoundServiceActivity extends AppCompatActivity {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.i(TAG, "Bound service connected");
+                Log.i(TAG, "Bound service disconnected");
                 myBoundService = null;
                 isServiceBound = false;
             }
         };
-
-        messageText.setText("BoundService started.");
 
     }
 
@@ -165,6 +161,26 @@ public class BoundServiceActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
+            Bundle extras = intent.getExtras();
+            int result = extras.getInt("RESULT");
+
+            switch(result) {
+                case MyBoundService.ServiceStarted:
+                    Log.i(TAG,"ServiceStarted received");
+                    messageText.setText("BoundService started.");
+                    break;
+                case MyBoundService.MusicPlaying:
+                    Log.i(TAG,"MusicPlaying received");
+                    messageText.setText("Music playing.");
+                    break;
+                case MyBoundService.MusicPaused:
+                    Log.i(TAG,"MusicPaused received");
+                    messageText.setText("Music paused.");
+                    break;
+                default:
+                    break;
+            }
 
         }
     }
