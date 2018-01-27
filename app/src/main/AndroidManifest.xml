@@ -22,18 +22,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BoundServiceActivity"
+            android:label="@string/title_activity_bound_service"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <service
             android:name=".DownloadIntentService"
-            android:exported="false">
-        </service>
-
+            android:exported="false" />
         <service
             android:name=".MyStartedService"
             android:enabled="true"
-            android:exported="true">
-        </service>
-
+            android:exported="true" />
+        <service
+            android:name=".MyBoundService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

@@ -25,8 +25,8 @@ public class MyStartedService extends Service {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                int sum = 0;
-                for (int i=0;i<100;i++) {
+                int sum = 0;    // the sum of 1 ~ 100
+                for (int i=1; i<=100; i++) {
                     sum += i;
                 }
                 stopSelf();

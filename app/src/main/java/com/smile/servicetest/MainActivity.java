@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
     // private static final int REQUEST_CODE_ASK_PERMISSIONS = 213;
     private BroadcastReceiver receiver = null;
     private TextView statusText = null;
-    private String notification = new String("");
     private String packageName = new String("");
     private Button buttonIntentService = null;
     private Button buttonStartedService = null;
@@ -37,22 +36,25 @@ public class MainActivity extends AppCompatActivity {
         packageName = getApplicationContext().getPackageName();
         // or
         // packageName = getPackageName();
-        notification = packageName;
-        // notification = getIntent().getAction();
 
-        receiver = new broadcastReceiver();
+        receiver = new mainActivityReceiver();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // registerReceiver(receiver, new IntentFilter(notification));  // use global broadcast receiver
+        // IntentFilter filter = new IntentFilter();
+        // filter.addAction(DownloadIntentService.ActionName);
+        // filter.addAction(MyStartedService.ActionName);
+        // registerReceiver(receiver, filter);  // use global broadcast receiver
 
-        // use Local Broadcast receiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadIntentService.ActionName);
         filter.addAction(MyStartedService.ActionName);
+        // registerReceiver(receiver, filter);  // use global broadcast receiver
+
+        // use Local Broadcast receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver,filter);
     }
 
@@ -66,34 +68,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startIntentService(View view) {
-        Intent intent = new Intent(this,DownloadIntentService.class);
-        Bundle extras = new Bundle();
-        // extras.putString("URL_PATH","http://fescc.ca/Chinese/index.htm");
-        extras.putString("URL_PATH","https://trpgline.com/admin");
-        extras.putString("FILENAME","admin");
-        extras.putString("NOTIFICATION",notification);
-        intent.putExtras(extras);
-        startService(intent);
 
         buttonIntentService.setEnabled(false);
         buttonStartedService.setEnabled(false);
         buttonBoundService.setEnabled(false);
 
         statusText.setText("IntentService started !!");
+
+        Intent intent = new Intent(this,DownloadIntentService.class);
+        Bundle extras = new Bundle();
+        // extras.putString("URL_PATH","http://fescc.ca/Chinese/index.htm");
+        extras.putString("URL_PATH","https://trpgline.com/admin");
+        extras.putString("FILENAME","admin");
+        intent.putExtras(extras);
+        startService(intent);
+
     }
 
     public void startStartedService( View view) {
+
+        buttonIntentService.setEnabled(false);
+        buttonStartedService.setEnabled(false);
+        buttonBoundService.setEnabled(false);
+
+        statusText.setText("StartedService started !!");
+
         Intent intent = new Intent(this,MyStartedService.class);
         startService(intent);
-        statusText.setText("StartedService started !!");
+
     }
 
     public void startBoundService( View view) {
-        statusText.setText("BoundService has not been implemented yet !!");
+
+        statusText.setText("");
+
+        Intent intent = new Intent(MainActivity.this, BoundServiceActivity.class);
+        startActivity(intent);
 
     }
 
-    private class broadcastReceiver extends BroadcastReceiver {
+    private class mainActivityReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context,Intent intent) {
 

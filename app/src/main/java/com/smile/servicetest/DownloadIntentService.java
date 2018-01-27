@@ -43,7 +43,6 @@ public class DownloadIntentService extends IntentService {
 
         String urlPath  = extras.getString("URL_PATH");
         String fileName = extras.getString("FILENAME");
-        String notification = extras.getString("NOTIFICATION");
 
         // File output = new File(Environment.getExternalStorageDirectory(),fileName); // does not work on API 23
         System.out.println("Environment.getExternalStorageDirectory()-->"+Environment.getExternalStorageDirectory());
@@ -99,7 +98,6 @@ public class DownloadIntentService extends IntentService {
         }
 
         // publish the result using sendBroadcast
-        // Intent notificationIntent = new Intent(notification);
         Intent notificationIntent = new Intent(ActionName);
 
         /*
