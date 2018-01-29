@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
@@ -64,19 +66,27 @@ public class DownloadIntentService extends IntentService {
         }
 
         InputStream iStream = null;
+        HttpsURLConnection myConnection = null;
         FileOutputStream foStream = null;
 
         try {
+            // use REST APIs
             URL url = new URL(urlPath);
-            iStream = url.openConnection().getInputStream();
-            InputStreamReader iReader= new InputStreamReader(iStream);
-            foStream = new FileOutputStream(output);
+            myConnection = (HttpsURLConnection) url.openConnection();
+            if (myConnection.getResponseCode() == 200) {
+                // successfully
+                iStream = myConnection.getInputStream();
+                InputStreamReader iReader= new InputStreamReader(iStream,"UTF-8");
+                //
 
-            int readBuff = -1;
-            while((readBuff=iReader.read()) != -1) {
-                foStream.write(readBuff);
+                foStream = new FileOutputStream(output);
+
+                int readBuff = -1;
+                while((readBuff=iReader.read()) != -1) {
+                    foStream.write(readBuff);
+                }
+                result = Activity.RESULT_OK;  // successfully downloaded
             }
-            result = Activity.RESULT_OK;  // successfully downloaded
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Exception.");
@@ -95,6 +105,11 @@ public class DownloadIntentService extends IntentService {
                     e.printStackTrace();
                 }
             }
+            if (myConnection != null) {
+                // disconnect the resource
+                myConnection.disconnect();
+            }
+
         }
 
         // publish the result using sendBroadcast
