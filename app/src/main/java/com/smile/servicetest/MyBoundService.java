@@ -33,7 +33,7 @@ public class MyBoundService extends Service {
             @Override
             public void run() {
                 Log.i(TAG,"backgroundThread running");
-                playMusic();
+                startMusic();
             }
         });
 
@@ -89,7 +89,7 @@ public class MyBoundService extends Service {
         }
     }
 
-    public void startPlay() {
+    public void playMusic() {
         if (mediaPlayer != null) {
 
             if (!mediaPlayer.isPlaying()) {
@@ -108,7 +108,7 @@ public class MyBoundService extends Service {
 
     }
 
-    public void pausePlay() {
+    public void pauseMusic() {
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -126,7 +126,7 @@ public class MyBoundService extends Service {
 
     }
 
-    private void playMusic() {
+    private void startMusic() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.music_a);
             if (mediaPlayer != null) {

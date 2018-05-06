@@ -42,7 +42,7 @@ public class BoundServiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
-                    myBoundService.startPlay();
+                    myBoundService.playMusic();
                 }
             }
         });
@@ -51,7 +51,7 @@ public class BoundServiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
-                    myBoundService.pausePlay();
+                    myBoundService.pauseMusic();
                 }
             }
         });
@@ -153,7 +153,7 @@ public class BoundServiceActivity extends AppCompatActivity {
         Toast.makeText(this,"Unbinding ...", Toast.LENGTH_SHORT).show();
         if (isServiceBound) {
             unbindService(myServiceConnection);
-            isServiceBound = false;
+            // isServiceBound = false;
         }
     }
 

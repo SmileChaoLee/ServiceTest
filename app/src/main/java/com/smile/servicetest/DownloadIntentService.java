@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -66,6 +67,7 @@ public class DownloadIntentService extends IntentService {
         }
 
         InputStream iStream = null;
+        InputStreamReader iReader = null;
         HttpsURLConnection myConnection = null;
         FileOutputStream foStream = null;
 
@@ -73,10 +75,10 @@ public class DownloadIntentService extends IntentService {
             // use REST APIs
             URL url = new URL(urlPath);
             myConnection = (HttpsURLConnection) url.openConnection();
-            if (myConnection.getResponseCode() == 200) {
+            if (myConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {  // value = 200
                 // successfully
                 iStream = myConnection.getInputStream();
-                InputStreamReader iReader= new InputStreamReader(iStream,"UTF-8");
+                iReader= new InputStreamReader(iStream,"UTF-8");
                 //
 
                 foStream = new FileOutputStream(output);
@@ -91,6 +93,15 @@ public class DownloadIntentService extends IntentService {
             e.printStackTrace();
             System.out.println("Exception.");
         } finally {
+            if (iReader != null)
+            {
+                try {
+                    iReader.close();
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
             if (iStream != null) {
                 try {
                     iStream.close();
