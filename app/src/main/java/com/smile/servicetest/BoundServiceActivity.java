@@ -162,26 +162,33 @@ public class BoundServiceActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            Bundle extras = intent.getExtras();
-            int result = extras.getInt("RESULT");
-
-            switch(result) {
-                case MyBoundService.ServiceStarted:
-                    Log.i(TAG,"ServiceStarted received");
-                    messageText.setText("BoundService started.");
-                    break;
-                case MyBoundService.MusicPlaying:
-                    Log.i(TAG,"MusicPlaying received");
-                    messageText.setText("Music playing.");
-                    break;
-                case MyBoundService.MusicPaused:
-                    Log.i(TAG,"MusicPaused received");
-                    messageText.setText("Music paused.");
-                    break;
-                default:
-                    break;
+            if (intent == null) {
+                return;
             }
 
+            String action = intent.getAction();
+
+            if (action.equals(MyBoundService.ActionName)) {
+                Bundle extras = intent.getExtras();
+                int result = extras.getInt("RESULT");
+
+                switch(result) {
+                    case MyBoundService.ServiceStarted:
+                        Log.i(TAG,"ServiceStarted received");
+                        messageText.setText("BoundService started.");
+                        break;
+                    case MyBoundService.MusicPlaying:
+                        Log.i(TAG,"MusicPlaying received");
+                        messageText.setText("Music playing.");
+                        break;
+                    case MyBoundService.MusicPaused:
+                        Log.i(TAG,"MusicPaused received");
+                        messageText.setText("Music paused.");
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
