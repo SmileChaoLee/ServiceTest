@@ -125,11 +125,15 @@ public class MainActivity extends AppCompatActivity {
                     int result = extras.getInt("RESULT");
                     if (result == Activity.RESULT_OK) {
                         // download finished successfully
-                        Toast.makeText(getApplicationContext(),"Download completed. File: "+filePath,Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"Download completed. File: "+filePath,Toast.LENGTH_LONG).show();
+                        // or
+                        // Toast.makeText(getApplicationContext(),"Download completed. File: "+filePath,Toast.LENGTH_LONG).show();
                         statusText.setText("Download completed !!");
                     } else {
                         // download failed
-                        Toast.makeText(getApplicationContext(),"Download failed.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"Download failed.",Toast.LENGTH_LONG).show();
+                        // or
+                        // Toast.makeText(getApplicationContext(),"Download failed.",Toast.LENGTH_LONG).show();
                         statusText.setText("Download failed !!");
                     }
                     break;
