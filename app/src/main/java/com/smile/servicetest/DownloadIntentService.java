@@ -139,7 +139,7 @@ public class DownloadIntentService extends IntentService {
         // sendBroadcast(notificationIntent); // this will work for global broadcast receiver
 
         // this will work for local broadcast receiver
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(notificationIntent);
     }
 }
