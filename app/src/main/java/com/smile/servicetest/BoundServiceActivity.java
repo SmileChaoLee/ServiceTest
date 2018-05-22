@@ -1,5 +1,6 @@
 package com.smile.servicetest;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
@@ -23,6 +24,8 @@ public class BoundServiceActivity extends AppCompatActivity {
     private String TAG = "com.smile.servicetest.BoundServiceActivity";
 
     private TextView messageText;
+    private Button startBindServiceButton;
+    private Button unbindStopServiceButton;
     private Button playButton;
     private Button pauseButton;
     private Button exitBoundService;
@@ -37,12 +40,30 @@ public class BoundServiceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bound_service);
 
         messageText = (TextView) findViewById(R.id.messageText);
+        startBindServiceButton = (Button)findViewById(R.id.startBindService);
+        startBindServiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // start service
+                startMusicService();
+                doBindToService();
+            }
+        });
+        unbindStopServiceButton = (Button)findViewById(R.id.unbindStopService);
+        unbindStopServiceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unbindAndStopMusicService();
+            }
+        });
         playButton = (Button) findViewById(R.id.playMusic);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ( (myBoundService != null) && (isServiceBound) ) {
+                if ((myBoundService != null) && (isServiceBound)) {
                     myBoundService.playMusic();
+                    playButton.setEnabled(false);
+                    pauseButton.setEnabled(true);
                 }
             }
         });
@@ -52,6 +73,8 @@ public class BoundServiceActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
                     myBoundService.pauseMusic();
+                    playButton.setEnabled(true);
+                    pauseButton.setEnabled(false);
                 }
             }
         });
@@ -66,8 +89,7 @@ public class BoundServiceActivity extends AppCompatActivity {
         receiver = new boundServiceReceiver();
 
         // start service
-        Intent serviceIntent = new Intent(BoundServiceActivity.this, MyBoundService.class);
-        startService(serviceIntent);
+        startMusicService();
 
         myServiceConnection = new ServiceConnection() {
             @Override
@@ -76,6 +98,13 @@ public class BoundServiceActivity extends AppCompatActivity {
                 MyBoundService.MyBinder myBinder = (MyBoundService.MyBinder)service;
                 myBoundService = myBinder.getService();
                 isServiceBound = true;
+                /*
+                // set statuses for buttons
+                if (myBoundService != null) {
+                    pauseButton.setEnabled(myBoundService.isMusicPlaying());
+                    playButton.setEnabled(!pauseButton.isEnabled());
+                }
+                */
             }
 
             @Override
@@ -100,7 +129,13 @@ public class BoundServiceActivity extends AppCompatActivity {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(receiver,filter);
 
-        // bind to the service
+        /*
+        if (isServiceRunning(MyBoundService.class)) {
+            Log.i(TAG,"BoundServiceActivity - onResume - Binding to service");
+            doBindToService();
+        }
+        */
+
         Log.i(TAG,"BoundServiceActivity - onResume - Binding to service");
         doBindToService();
     }
@@ -126,8 +161,7 @@ public class BoundServiceActivity extends AppCompatActivity {
         if (isFinishing()) {
             // stop service as activity being destroyed and we won't use any more
             Log.i(TAG,"Activity is finishing.");
-            Intent serviceStopIntent = new Intent(BoundServiceActivity.this, MyBoundService.class);
-            stopService(serviceStopIntent);
+            stopMusicService();
         }
     }
 
@@ -137,24 +171,86 @@ public class BoundServiceActivity extends AppCompatActivity {
         finish();
     }
 
+    private void startMusicService() {
+        // start service
+        // if (myBoundService == null) {
+        if (!MyBoundService.isServiceRunning) {
+            // MyBoundService is not running
+            try {
+                Intent serviceIntent = new Intent(BoundServiceActivity.this, MyBoundService.class);
+                startService(serviceIntent);
+                startBindServiceButton.setEnabled(false);
+                unbindStopServiceButton.setEnabled(true);
+                playButton.setEnabled(false);
+                pauseButton.setEnabled(true);
+                MyBoundService.isServiceRunning = true;
+                Log.i("startMusicService", "Service started");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private void unbindAndStopMusicService() {
+        // start service
+        try {
+            doUnbindService();
+            stopMusicService();
+
+            startBindServiceButton.setEnabled(true);
+            unbindStopServiceButton.setEnabled(false);
+            playButton.setEnabled(false);
+            pauseButton.setEnabled(false);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     // bind to the service
     private void doBindToService() {
 
-        Toast.makeText(this, "Binding ...", Toast.LENGTH_SHORT).show();
-        if (!isServiceBound) {
-            Intent bindServiceIntent = new Intent(BoundServiceActivity.this,MyBoundService.class);
-            isServiceBound = bindService(bindServiceIntent,myServiceConnection, Context.BIND_AUTO_CREATE);
+        if (MyBoundService.isServiceRunning) {
+            // service is running
+            Log.i(TAG, "BoundServiceActivity - Binding to service");
+            Toast.makeText(this, "Binding ...", Toast.LENGTH_SHORT).show();
+            if (!isServiceBound) {
+                Intent bindServiceIntent = new Intent(BoundServiceActivity.this, MyBoundService.class);
+                isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+            }
         }
     }
 
     // unbind from the service
     private void doUnbindService() {
-
-        Toast.makeText(this,"Unbinding ...", Toast.LENGTH_SHORT).show();
-        if (isServiceBound) {
-            unbindService(myServiceConnection);
-            // isServiceBound = false;
+        if (MyBoundService.isServiceRunning) {
+            // service is running
+            Log.i(TAG, "BoundServiceActivity - Unbinding to service");
+            Toast.makeText(this, "Unbinding ...", Toast.LENGTH_SHORT).show();
+            if (isServiceBound) {
+                unbindService(myServiceConnection);
+                isServiceBound = false;
+            }
         }
+    }
+
+    private void stopMusicService() {
+        if (MyBoundService.isServiceRunning) {
+            Log.i(TAG, "BoundServiceActivity - Stopping service");
+            Intent serviceStopIntent = new Intent(BoundServiceActivity.this, MyBoundService.class);
+            stopService(serviceStopIntent);
+            // MyBoundService.isServiceRunning = false; // set inside onDestroy() inside MyBoundService.calss
+        }
+    }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class boundServiceReceiver extends BroadcastReceiver {

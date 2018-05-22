@@ -1,6 +1,8 @@
 package com.smile.servicetest;
 
+import android.app.ActivityManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
@@ -21,6 +23,8 @@ public class MyBoundService extends Service {
     private Thread backgroundThread = null;
 
     private IBinder myBinder = new MyBinder();
+
+    public static boolean isServiceRunning = false;
 
     public MyBoundService() {
     }
@@ -63,13 +67,14 @@ public class MyBoundService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "onUnbind called");
+        Log.i(TAG, "onUnbind() called");
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy() called");
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -81,6 +86,8 @@ public class MyBoundService extends Service {
         dummy.interrupt();
 
         myBinder = null;
+
+        isServiceRunning = false;
     }
 
     public class MyBinder extends Binder {
@@ -124,6 +131,15 @@ public class MyBoundService extends Service {
             }
         }
 
+    }
+
+    public boolean isMusicPlaying() {
+
+        boolean isMediaPlaying = false;
+        if (mediaPlayer != null) {
+            isMediaPlaying = mediaPlayer.isPlaying();
+        }
+        return isMediaPlaying;
     }
 
     private void startMusic() {
