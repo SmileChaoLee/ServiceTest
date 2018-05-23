@@ -7,7 +7,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".BoundServiceActivity">
+    tools:context=".BoundServiceByIBinderActivity">
 
     <TextView
         android:id="@+id/titleText"
@@ -17,7 +17,7 @@
         android:textColor="#ff000000"
         android:layout_margin="0dp"
         android:padding="0dp"
-        android:text="Bound Service"
+        android:text="Bound Service (IBinder)"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:textSize="36dp"

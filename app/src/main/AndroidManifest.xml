@@ -23,9 +23,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BoundServiceActivity"
-            android:label="@string/title_activity_bound_service"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".BoundServiceByIBinderActivity"
+            android:label="@string/title_activity_bound_service_by_ibinder"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".BoundServiceByMessengerActivity"
+            android:label="@string/title_activity_bound_service_by_ibinder"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
 
         <service
             android:name=".DownloadIntentService"
@@ -37,7 +43,7 @@
         <service
             android:name=".MyBoundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

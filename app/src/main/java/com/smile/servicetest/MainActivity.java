@@ -21,7 +21,8 @@ public class MainActivity extends AppCompatActivity {
     private String packageName = new String("");
     private Button buttonIntentService = null;
     private Button buttonStartedService = null;
-    private Button buttonBoundService = null;
+    private Button buttonBoundServiceByIBinder = null;
+    private Button buttonBoundServiceByMessenger = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
         statusText = (TextView) findViewById(R.id.textStatus);
         buttonIntentService = (Button)findViewById(R.id.buttonIntentService);
         buttonStartedService = (Button)findViewById(R.id.buttonStartedService);
-        buttonBoundService = (Button)findViewById(R.id.buttonBoundService);
+        buttonBoundServiceByIBinder = (Button)findViewById(R.id.buttonBoundServiceByIBinder);
+        buttonBoundServiceByMessenger = (Button)findViewById(R.id.buttonBoundServiceByMessenger);
 
         packageName = getApplicationContext().getPackageName();
         // or
@@ -71,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
         buttonIntentService.setEnabled(false);
         buttonStartedService.setEnabled(false);
-        buttonBoundService.setEnabled(false);
+        buttonBoundServiceByIBinder.setEnabled(false);
+        buttonBoundServiceByMessenger.setEnabled(false);
 
         statusText.setText("IntentService started !!");
 
@@ -89,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
 
         buttonIntentService.setEnabled(false);
         buttonStartedService.setEnabled(false);
-        buttonBoundService.setEnabled(false);
+        buttonBoundServiceByIBinder.setEnabled(false);
+        buttonBoundServiceByMessenger.setEnabled(false);
 
         statusText.setText("StartedService started !!");
 
@@ -98,13 +102,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startBoundService( View view) {
+    public void startBoundServiceByIBinder( View view) {
 
         statusText.setText("");
 
-        Intent intent = new Intent(MainActivity.this, BoundServiceActivity.class);
+        Intent intent = new Intent(MainActivity.this, BoundServiceByIBinderActivity.class);
         startActivity(intent);
+    }
 
+
+    public void startBoundServiceByMessenger( View view) {
+
+        statusText.setText("");
+
+        Intent intent = new Intent(MainActivity.this, BoundServiceByMessengerActivity.class);
+        startActivity(intent);
     }
 
     private class mainActivityReceiver extends BroadcastReceiver {
@@ -148,7 +160,8 @@ public class MainActivity extends AppCompatActivity {
 
             buttonIntentService.setEnabled(true);
             buttonStartedService.setEnabled(true);
-            buttonBoundService.setEnabled(true);
+            buttonBoundServiceByIBinder.setEnabled(true);
+            buttonBoundServiceByMessenger.setEnabled(true);
         }
     }
 }
