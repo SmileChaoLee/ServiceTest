@@ -35,6 +35,8 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
     private Messenger sendMessenger;
     private ServiceConnection myServiceConnection;
 
+    private Context context;
+
     private Messenger clientMessenger = new Messenger(new ClientHandler());
     private class ClientHandler extends Handler {
 
@@ -70,6 +72,8 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bound_service_by_messenger);
+
+        context = getApplicationContext();
 
         messageText = (TextView) findViewById(R.id.messageText);
         startBindServiceButton = (Button) findViewById(R.id.startBindService);
@@ -206,8 +210,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
     private void startMusicService() {
         // start service
-        // if (myBoundService == null) {
-        if (!MyBoundService.isServiceRunning) {
+        if (!MyBoundService.isServiceRunning(context)) {
             // MyBoundService is not running
             try {
                 Intent serviceIntent = new Intent(BoundServiceByMessengerActivity.this, MyBoundService.class);
@@ -221,7 +224,6 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 unbindStopServiceButton.setEnabled(true);
                 playButton.setEnabled(false);
                 pauseButton.setEnabled(true);
-                MyBoundService.isServiceRunning = true;
                 Log.i("startMusicService", "Service started");
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -248,7 +250,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
     // bind to the service
     private void doBindToService() {
 
-        if (MyBoundService.isServiceRunning) {
+        if (MyBoundService.isServiceRunning(context)) {
             // service is running
             Log.i(TAG, "BoundServiceActivityByMessenger - Binding to service");
             Toast.makeText(this, "Binding ...", Toast.LENGTH_SHORT).show();
@@ -267,19 +269,20 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
     // unbind from the service
     private void doUnbindService() {
-        if (MyBoundService.isServiceRunning) {
+        if (MyBoundService.isServiceRunning(context)) {
             // service is running
             Log.i(TAG, "BoundServiceActivityByMessenger - Unbinding to service");
-            Toast.makeText(this, "Unbinding ...", Toast.LENGTH_SHORT).show();
             if (isServiceBound) {
                 unbindService(myServiceConnection);
+                Toast.makeText(this, "Unbinding ...", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "BoundServiceActivityByMessenger --> service unbound.");
                 isServiceBound = false;
             }
         }
     }
 
     private void stopMusicService() {
-        if (MyBoundService.isServiceRunning) {
+        if (MyBoundService.isServiceRunning(context)) {
             Log.i(TAG, "BoundServiceActivityByMessenger - Stopping service");
             // Intent serviceStopIntent = new Intent(BoundServiceByMessengerActivity.this, MyBoundService.class);
             // stopService(serviceStopIntent);
@@ -290,19 +293,6 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
-
-            // MyBoundService.isServiceRunning = false; // set inside onDestroy() inside MyBoundService.class
         }
-    }
-
-    // deprecated
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

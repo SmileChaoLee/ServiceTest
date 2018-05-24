@@ -44,11 +44,12 @@ public class MyBoundService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            // setting responce message
+            // setting response message
             Message responseMsg = Message.obtain(null, msg.what, 0, 0);
 
             switch (msg.what) {
                 case ServiceStopped:
+                    Log.i(TAG, "Terminating.");
                     terminateService(MessengerIPC);
                     break;
                 case ServiceStarted:
@@ -74,8 +75,6 @@ public class MyBoundService extends Service {
 
         }
     }
-
-    public static boolean isServiceRunning = false;
 
     public MyBoundService() {
     }
@@ -162,8 +161,6 @@ public class MyBoundService extends Service {
 
         serviceBinder = null;
         serviceMessenger = null;
-
-        isServiceRunning = false;
     }
 
     public void playMusic(int binderOrMessenger) {
@@ -222,6 +219,7 @@ public class MyBoundService extends Service {
     }
 
     public void terminateService(int binderOrMessenger) {
+        Log.i(TAG, "stopSelf()ing.");
         stopSelf();
         if (binderOrMessenger == BinderIPC) {
             // send broadcast to receiver
@@ -245,5 +243,22 @@ public class MyBoundService extends Service {
                 mediaPlayer.start();
             }
         }
+    }
+
+    public static boolean isServiceRunning(Context context) {
+        if (context == null) {
+            return false;
+        }
+
+        Class<?> serviceClass = MyBoundService.class;
+        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        // ActivityManager.getRunningServices() deprecated at API 26 and higher
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
