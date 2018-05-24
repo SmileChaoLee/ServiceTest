@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smile.servicetest">
 
-
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <permission android:name="com.smile.servicetest.MyBoundService" />
 
     <application
         android:allowBackup="true"
@@ -37,15 +37,16 @@
 
         <service
             android:name=".DownloadIntentService"
+            android:enabled="true"
             android:exported="false" />
         <service
             android:name=".MyStartedService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name=".MyBoundService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.smile.servicetest.MyBoundService.START_SERVICE"/>
             </intent-filter>
