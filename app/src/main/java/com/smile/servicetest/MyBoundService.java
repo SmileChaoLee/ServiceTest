@@ -129,7 +129,7 @@ public class MyBoundService extends Service {
 
         /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
+            // if start this service by startForegroundService(intent) method, then
             // if API level is equal to 26 or more, then the service has to be a foreground service
             // otherwise Android system will stop it in a sort time (according to background limits)
 

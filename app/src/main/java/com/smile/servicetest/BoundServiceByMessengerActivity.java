@@ -225,6 +225,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     // API >= 26 (OREO)
                     System.out.println("Oreo ---> startForegroundService()");
+                    // has to be used if this app (API 26 or more) run in background
                     // startForegroundService(serviceIntent);
                     startService(serviceIntent);
                 } else {
