@@ -1,17 +1,20 @@
 package com.smile.servicetest;
 
 import android.app.ActivityManager;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -218,7 +221,16 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 Bundle extras = new Bundle();
                 extras.putInt("BINDER_OR_MESSENGER", MyBoundService.MessengerIPC);
                 serviceIntent.putExtras(extras);
-                startService(serviceIntent);
+
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    // API >= 26 (OREO)
+                    System.out.println("Oreo ---> startForegroundService()");
+                    // startForegroundService(serviceIntent);
+                    startService(serviceIntent);
+                } else {
+                    System.out.println("Not Oreo ---> startService()");
+                    startService(serviceIntent);
+                }
 
                 startBindServiceButton.setEnabled(false);
                 unbindStopServiceButton.setEnabled(true);
@@ -290,7 +302,9 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
             try {
                 msg.replyTo = clientMessenger;
                 sendMessenger.send(msg);
-            } catch (RemoteException ex) {
+            // } catch (RemoteException ex) {
+            //     ex.printStackTrace();
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

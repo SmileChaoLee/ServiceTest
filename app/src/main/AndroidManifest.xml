@@ -27,6 +27,7 @@
         <activity
             android:name=".BoundServiceByIBinderActivity"
             android:label="@string/title_activity_bound_service_by_ibinder"
+            android:process=":TestProcess"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
