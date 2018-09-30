@@ -52,9 +52,6 @@ public class MyBoundService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            // setting response message
-            Message responseMsg = Message.obtain(null, msg.what, 0, 0);
-
             switch (msg.what) {
                 case ServiceStopped:
                     Log.i(TAG, "Terminating.");
@@ -74,6 +71,8 @@ public class MyBoundService extends Service {
                     break;
             }
 
+            // setting response message
+            Message responseMsg = Message.obtain(null, msg.what, 0, 0);
             // send message back to client
             try {
                 msg.replyTo.send(responseMsg);

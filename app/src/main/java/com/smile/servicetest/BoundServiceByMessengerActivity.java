@@ -144,9 +144,9 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
         myServiceConnection = new ServiceConnection() {
             @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
+            public void onServiceConnected(ComponentName name, IBinder binder) {
                 Log.i(TAG, "Bound service connected");
-                sendMessenger = new Messenger(service);
+                sendMessenger = new Messenger(binder);
                 isServiceBound = true;
 
                 // send message to MyBoundService
