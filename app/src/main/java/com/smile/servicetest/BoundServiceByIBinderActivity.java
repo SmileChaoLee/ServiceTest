@@ -1,6 +1,5 @@
 package com.smile.servicetest;
 
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,8 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,8 +40,8 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
 
         context = getApplicationContext();
 
-        messageText = (TextView) findViewById(R.id.messageText);
-        startBindServiceButton = (Button)findViewById(R.id.startBindService);
+        messageText = findViewById(R.id.messageText);
+        startBindServiceButton = findViewById(R.id.startBindService);
         startBindServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,36 +50,36 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
                 doBindToService();
             }
         });
-        unbindStopServiceButton = (Button)findViewById(R.id.unbindStopService);
+        unbindStopServiceButton = findViewById(R.id.unbindStopService);
         unbindStopServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 unbindAndStopMusicService();
             }
         });
-        playButton = (Button) findViewById(R.id.playMusic);
+        playButton = findViewById(R.id.playMusic);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ((myBoundService != null) && (isServiceBound)) {
-                    myBoundService.playMusic(MyBoundService.BinderIPC);
+                    myBoundService.playMusic();
                     playButton.setEnabled(false);
                     pauseButton.setEnabled(true);
                 }
             }
         });
-        pauseButton = (Button) findViewById(R.id.pauseMusic);
+        pauseButton = findViewById(R.id.pauseMusic);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ( (myBoundService != null) && (isServiceBound) ) {
-                    myBoundService.pauseMusic(MyBoundService.BinderIPC);
+                    myBoundService.pauseMusic();
                     playButton.setEnabled(true);
                     pauseButton.setEnabled(false);
                 }
             }
         });
-        exitBoundService = (Button) findViewById(R.id.exitBoundService);
+        exitBoundService = findViewById(R.id.exitBoundService);
         exitBoundService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,13 +99,6 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
                 MyBoundService.ServiceBinder myBinder = (MyBoundService.ServiceBinder)service;
                 myBoundService = myBinder.getService();
                 isServiceBound = true;
-                /*
-                // set statuses for buttons
-                if (myBoundService != null) {
-                    pauseButton.setEnabled(myBoundService.isMusicPlaying());
-                    playButton.setEnabled(!pauseButton.isEnabled());
-                }
-                */
             }
 
             @Override
@@ -130,13 +122,6 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
         // local registration
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(receiver,filter);
-
-        /*
-        if (isServiceRunning(MyBoundService.class)) {
-            Log.i(TAG,"BoundServiceActivityByIBinder - onResume - Binding to service");
-            doBindToService();
-        }
-        */
 
         Log.i(TAG,"BoundServiceActivityByIBinder - onResume - Binding to service");
         doBindToService();
@@ -178,10 +163,10 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
         if (!MyBoundService.isServiceRunning(context)) {
             // MyBoundService is not running
             try {
-                Intent serviceIntent = new Intent(BoundServiceByIBinderActivity.this, MyBoundService.class);
+                Intent serviceIntent = new Intent(this, MyBoundService.class);
                 // setting parameters
                 Bundle extras = new Bundle();
-                extras.putInt("BINDER_OR_MESSENGER", MyBoundService.BinderIPC);
+                extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.BinderIPC);
                 serviceIntent.putExtras(extras);
                 startService(serviceIntent);
 
@@ -220,11 +205,11 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
             Log.i(TAG, "BoundServiceActivityByIBinder - Binding to service");
             Toast.makeText(this, "Binding ...", Toast.LENGTH_SHORT).show();
             if (!isServiceBound) {
-                Intent bindServiceIntent = new Intent(BoundServiceByIBinderActivity.this, MyBoundService.class);
+                Intent bindServiceIntent = new Intent(this, MyBoundService.class);
 
                 // parameters for this Intent
                 Bundle extras = new Bundle();
-                extras.putInt("BINDER_OR_MESSENGER", MyBoundService.BinderIPC);
+                extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.BinderIPC);
                 bindServiceIntent.putExtras(extras);
 
                 isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
@@ -250,7 +235,7 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
             Log.i(TAG, "BoundServiceActivityByIBinder - Stopping service");
             // Intent serviceStopIntent = new Intent(BoundServiceByIBinderActivity.this, MyBoundService.class);
             // stopService(serviceStopIntent);
-            myBoundService.terminateService(MyBoundService.BinderIPC);
+            myBoundService.terminateService();
             // MyBoundService.isServiceRunning = false; // set inside onDestroy() inside MyBoundService.class
         }
     }

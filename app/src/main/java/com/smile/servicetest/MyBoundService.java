@@ -1,23 +1,20 @@
 package com.smile.servicetest;
 
 import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class MyBoundService extends Service {
@@ -30,6 +27,7 @@ public class MyBoundService extends Service {
     public static final int BinderIPC = 1;
     public static final int MessengerIPC = 2;
 
+    public static final String BINDER_OR_MESSENGER_KEY = "BINDER_OR_MESSENGER";
     public static final String MyBoundServiceChannelName = "com.smile.servicetest.MyBoundService.ANDROID";
     public static final String MyBoundServiceChannelID = "com.smile.servicetest.MyBoundService.CHANNEL_ID";
     public static final int MyBoundServiceNotificationID = 1;
@@ -37,6 +35,7 @@ public class MyBoundService extends Service {
     private String TAG = "com.smile.servicetest.MyBoundService";
     private MediaPlayer mediaPlayer = null;
     private Thread backgroundThread = null;
+    private int binderOrMessenger = BinderIPC;
 
     // create a Binder for communicate with clients using this Binder
     private IBinder serviceBinder = new ServiceBinder();
@@ -49,22 +48,24 @@ public class MyBoundService extends Service {
     // create a Messenger for communicate with clients using this Messenger
     private Messenger serviceMessenger = new Messenger(new ServiceHandler());
     private class ServiceHandler extends Handler {
-
+        public ServiceHandler() {
+            super(Looper.getMainLooper());
+        }
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case ServiceStopped:
                     Log.i(TAG, "Terminating.");
-                    terminateService(MessengerIPC);
+                    terminateService();
                     break;
                 case ServiceStarted:
                     // does not do anything
                     break;
                 case MusicPlaying:
-                    playMusic(MessengerIPC);
+                    playMusic();
                     break;
                 case MusicPaused:
-                    pauseMusic(MessengerIPC);
+                    pauseMusic();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -106,10 +107,10 @@ public class MyBoundService extends Service {
         Log.i(TAG,"Service started by startService()");
 
         Bundle extras = intent.getExtras();
-        int binderOrMessenger = 1;  // default connection is IBinder
+        binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt("BINDER_OR_MESSENGER");
-            Log.i(TAG, "BINDER_OR_MESSENGER = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
+            Log.i(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
 
         if (binderOrMessenger == BinderIPC) {
@@ -126,38 +127,6 @@ public class MyBoundService extends Service {
 
         }
 
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // if start this service by startForegroundService(intent) method, then
-            // if API level is equal to 26 or more, then the service has to be a foreground service
-            // otherwise Android system will stop it in a sort time (according to background limits)
-
-            NotificationChannel nChannel = new NotificationChannel(MyBoundServiceChannelID, MyBoundServiceChannelName, NotificationManager.IMPORTANCE_DEFAULT);
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(nChannel);
-
-            Notification.Builder builder = new Notification.Builder(this, MyBoundServiceChannelID)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Foreground BoundService (above or is Oreo.)")
-                    .setAutoCancel(true);
-
-            Notification notification = builder.build();
-            startForeground(MyBoundServiceNotificationID, notification);
-
-        } else {
-            // API level under 26, a service does not have to be a foreground service to run forever
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("Foreground BoundService (under Oreo.)")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setAutoCancel(true);
-
-            Notification notification = builder.build();
-
-            startForeground(MyBoundServiceNotificationID, notification);
-        }
-        */
-
         return super.onStartCommand(intent, flags, startId);
 
     }
@@ -166,10 +135,10 @@ public class MyBoundService extends Service {
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind called");
         Bundle extras = intent.getExtras();
-        int binderOrMessenger = 1;  // default connection is IBinder
+        binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt("BINDER_OR_MESSENGER");
-            Log.i(TAG, "BINDER_OR_MESSENGER = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
+            Log.i(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
         if (binderOrMessenger == MessengerIPC) {
             return serviceMessenger.getBinder();
@@ -203,7 +172,7 @@ public class MyBoundService extends Service {
         serviceMessenger = null;
     }
 
-    public void playMusic(int binderOrMessenger) {
+    public void playMusic() {
         if (mediaPlayer != null) {
 
             if (!mediaPlayer.isPlaying()) {
@@ -226,7 +195,7 @@ public class MyBoundService extends Service {
 
     }
 
-    public void pauseMusic(int binderOrMessenger) {
+    public void pauseMusic() {
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
@@ -258,7 +227,7 @@ public class MyBoundService extends Service {
         return isMediaPlaying;
     }
 
-    public void terminateService(int binderOrMessenger) {
+    public void terminateService() {
         Log.i(TAG, "stopSelf()ing.");
         stopSelf();
         if (binderOrMessenger == BinderIPC) {

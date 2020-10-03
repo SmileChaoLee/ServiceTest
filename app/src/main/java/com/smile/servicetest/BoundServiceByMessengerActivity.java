@@ -1,22 +1,18 @@
 package com.smile.servicetest;
 
-import android.app.ActivityManager;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.os.StrictMode;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +38,9 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
     private Messenger clientMessenger = new Messenger(new ClientHandler());
     private class ClientHandler extends Handler {
-
+        public ClientHandler() {
+            super(Looper.getMainLooper());
+        }
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -78,8 +76,8 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
         context = getApplicationContext();
 
-        messageText = (TextView) findViewById(R.id.messageText);
-        startBindServiceButton = (Button) findViewById(R.id.startBindService);
+        messageText = findViewById(R.id.messageText);
+        startBindServiceButton = findViewById(R.id.startBindService);
         startBindServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,14 +86,14 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 doBindToService();
             }
         });
-        unbindStopServiceButton = (Button) findViewById(R.id.unbindStopService);
+        unbindStopServiceButton = findViewById(R.id.unbindStopService);
         unbindStopServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 unbindAndStopMusicService();
             }
         });
-        playButton = (Button) findViewById(R.id.playMusic);
+        playButton = findViewById(R.id.playMusic);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,7 +111,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 }
             }
         });
-        pauseButton = (Button) findViewById(R.id.pauseMusic);
+        pauseButton = findViewById(R.id.pauseMusic);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,7 +129,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 }
             }
         });
-        exitBoundService = (Button) findViewById(R.id.exitBoundService);
+        exitBoundService = findViewById(R.id.exitBoundService);
         exitBoundService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,14 +155,6 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
                 } catch (RemoteException ex) {
                     ex.printStackTrace();
                 }
-
-                /*
-                // set statuses for buttons
-                if (myBoundService != null) {
-                    pauseButton.setEnabled(myBoundService.isMusicPlaying());
-                    playButton.setEnabled(!pauseButton.isEnabled());
-                }
-                */
             }
 
             @Override
@@ -216,10 +206,10 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
         if (!MyBoundService.isServiceRunning(context)) {
             // MyBoundService is not running
             try {
-                Intent serviceIntent = new Intent(BoundServiceByMessengerActivity.this, MyBoundService.class);
+                Intent serviceIntent = new Intent(this, MyBoundService.class);
                 // parameters for this Intent
                 Bundle extras = new Bundle();
-                extras.putInt("BINDER_OR_MESSENGER", MyBoundService.MessengerIPC);
+                extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.MessengerIPC);
                 serviceIntent.putExtras(extras);
 
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -272,7 +262,7 @@ public class BoundServiceByMessengerActivity extends AppCompatActivity {
 
                 // parameters for this Intent
                 Bundle extras = new Bundle();
-                extras.putInt("BINDER_OR_MESSENGER", MyBoundService.MessengerIPC);
+                extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.MessengerIPC);
                 bindServiceIntent.putExtras(extras);
 
                 isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);

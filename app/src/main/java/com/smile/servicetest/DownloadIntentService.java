@@ -3,18 +3,15 @@ package com.smile.servicetest;
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
-import android.media.audiofx.EnvironmentalReverb;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.widget.Toast;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -35,7 +32,6 @@ public class DownloadIntentService extends IntentService {
     public DownloadIntentService() {
         super("DownloadIntentService");
     }
-
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -75,7 +71,7 @@ public class DownloadIntentService extends IntentService {
             // use REST APIs
             URL url = new URL(urlPath);
             myConnection = (HttpsURLConnection) url.openConnection();
-            if (myConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {  // value = 200
+            if (myConnection.getResponseCode() == HttpsURLConnection.HTTP_OK) {  // value = 200
                 // successfully
                 iStream = myConnection.getInputStream();
                 iReader= new InputStreamReader(iStream,"UTF-8");

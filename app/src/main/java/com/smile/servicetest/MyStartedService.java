@@ -4,8 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MyStartedService extends Service {
 
