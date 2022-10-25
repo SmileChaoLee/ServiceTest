@@ -13,9 +13,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MyBoundService extends Service {
 
@@ -55,7 +55,7 @@ public class MyBoundService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case ServiceStopped:
-                    Log.i(TAG, "Terminating.");
+                    Log.d(TAG, "Terminating.");
                     terminateService();
                     break;
                 case ServiceStarted:
@@ -89,28 +89,27 @@ public class MyBoundService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG,"onCreate()");
         super.onCreate();
-
         backgroundThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG,"backgroundThread running");
+                Log.d(TAG,"backgroundThread running");
                 startMusic();
             }
         });
-
         backgroundThread.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG,"Service started by startService()");
+        Log.d(TAG,"onStartCommand()");
 
         Bundle extras = intent.getExtras();
         binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
             binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
-            Log.i(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
 
         if (binderOrMessenger == BinderIPC) {
@@ -133,12 +132,12 @@ public class MyBoundService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(TAG, "onBind called");
+        Log.d(TAG, "onBind()");
         Bundle extras = intent.getExtras();
         binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
             binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
-            Log.i(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
         if (binderOrMessenger == MessengerIPC) {
             return serviceMessenger.getBinder();
@@ -150,14 +149,14 @@ public class MyBoundService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "onUnbind() called");
+        Log.d(TAG, "onUnbind() called");
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy() called");
+        Log.d(TAG, "onDestroy() called");
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -228,7 +227,7 @@ public class MyBoundService extends Service {
     }
 
     public void terminateService() {
-        Log.i(TAG, "stopSelf()ing.");
+        Log.d(TAG, "stopSelf()ing.");
         stopSelf();
         if (binderOrMessenger == BinderIPC) {
             // send broadcast to receiver

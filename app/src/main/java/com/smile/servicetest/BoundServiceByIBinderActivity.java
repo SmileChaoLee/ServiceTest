@@ -7,8 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +19,7 @@ import android.widget.Toast;
 
 public class BoundServiceByIBinderActivity extends AppCompatActivity {
 
-    private String TAG = "com.smile.servicetest.BoundServiceByIBinderActivity";
+    private final String TAG = "BndServiceIBinderAct";
 
     private TextView messageText;
     private Button startBindServiceButton;
@@ -174,8 +175,9 @@ public class BoundServiceByIBinderActivity extends AppCompatActivity {
                 unbindStopServiceButton.setEnabled(true);
                 playButton.setEnabled(false);
                 pauseButton.setEnabled(true);
-                Log.i("startMusicService", "Service started");
+                Log.d(TAG, "startMusicService.Service started");
             } catch (Exception ex) {
+                Log.d(TAG, "startMusicService.Exception");
                 ex.printStackTrace();
             }
         }
