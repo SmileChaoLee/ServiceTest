@@ -180,7 +180,7 @@ public class IBinderActivity extends AppCompatActivity {
             Intent bindServiceIntent = new Intent(this, MyBoundService.class);
             // parameters for this Intent
             Bundle extras = new Bundle();
-            extras.putInt(Constants.BINDER_OR_MESSENGER_KEY, Constants.BinderIPC);
+            extras.putInt(Constants.BinderOrMessenger, Constants.BinderIPC);
             bindServiceIntent.putExtras(extras);
             isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
         }
@@ -202,7 +202,7 @@ public class IBinderActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (action.equals(Constants.ServiceName)) {
                 Bundle extras = intent.getExtras();
-                int result = extras.getInt("RESULT");
+                int result = extras.getInt(Constants.Result);
                 Log.d(TAG,"onReceive.result = " + result);
                 switch(result) {
                     case Constants.ServiceStarted:

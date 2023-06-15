@@ -20,7 +20,8 @@ public class Constants {
     public static final int BinderIPC = 11;
     public static final int MessengerIPC = 12;
 
-    public static final String BINDER_OR_MESSENGER_KEY = "BINDER_OR_MESSENGER";
+    public static final String Result = "RESULT";
+    public static final String BinderOrMessenger = "BINDER_OR_MESSENGER";
     public static final String MyBoundServiceChannelName = "com.smile.servicetest.MyBoundService.ANDROID";
     public static final String MyBoundServiceChannelID = "com.smile.servicetest.MyBoundService.CHANNEL_ID";
     public static final int MyBoundServiceNotificationID = 1;

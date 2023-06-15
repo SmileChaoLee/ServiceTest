@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     String filePath = extras.getString("FILEPATH");
-                    int result = extras.getInt("RESULT");
+                    int result = extras.getInt(Constants.Result);
                     if (result == Activity.RESULT_OK) {
                         // download finished successfully
                         Toast.makeText(context,"Download completed. File: "+filePath,Toast.LENGTH_LONG).show();

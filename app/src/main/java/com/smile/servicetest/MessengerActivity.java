@@ -264,7 +264,7 @@ public class MessengerActivity extends AppCompatActivity {
             Intent bindServiceIntent = new Intent(MessengerActivity.this, MyBoundService.class);
             // parameters for this Intent
             Bundle extras = new Bundle();
-            extras.putInt(Constants.BINDER_OR_MESSENGER_KEY, Constants.MessengerIPC);
+            extras.putInt(Constants.BinderOrMessenger, Constants.MessengerIPC);
             bindServiceIntent.putExtras(extras);
             isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
         }

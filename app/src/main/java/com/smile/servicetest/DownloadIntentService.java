@@ -131,7 +131,7 @@ public class DownloadIntentService extends IntentService {
 
         Bundle ex = new Bundle();
         ex.putString("FILEPATH",output.getAbsolutePath());
-        ex.putInt("RESULT",result);
+        ex.putInt(Constants.Result,result);
         notificationIntent.putExtras(ex);
         // sendBroadcast(notificationIntent); // this will work for global broadcast receiver
 

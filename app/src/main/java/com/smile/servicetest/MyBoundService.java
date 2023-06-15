@@ -18,7 +18,7 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MyBoundService extends Service {
-    private static String TAG = "MyBoundService";
+    private final static String TAG = "MyBoundService";
     private MediaPlayer mediaPlayer = null;
     private boolean isMusicLoaded = false;
     private boolean isMusicPlaying = false;
@@ -95,8 +95,8 @@ public class MyBoundService extends Service {
         Bundle extras = intent.getExtras();
         binderOrMessenger = Constants.BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt(Constants.BINDER_OR_MESSENGER_KEY);
-            Log.d(TAG, Constants.BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(Constants.BinderOrMessenger);
+            Log.d(TAG, Constants.BinderOrMessenger + " = " + binderOrMessenger);
         }
         broadcastResult(Constants.ServiceStarted);
         Log.d(TAG, "onStartCommand.binderOrMessenger = " + binderOrMessenger);
@@ -108,8 +108,8 @@ public class MyBoundService extends Service {
         Bundle extras = intent.getExtras();
         binderOrMessenger = Constants.BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt(Constants.BINDER_OR_MESSENGER_KEY);
-            Log.d(TAG, Constants.BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(Constants.BinderOrMessenger);
+            Log.d(TAG, Constants.BinderOrMessenger + " = " + binderOrMessenger);
         }
         Log.d(TAG, "onBind.binderOrMessenger = " + binderOrMessenger);
         broadcastResult(Constants.ServiceBound);
@@ -245,7 +245,7 @@ public class MyBoundService extends Service {
         Log.d(TAG, "broadcastResult");
         Intent broadcastIntent = new Intent(Constants.ServiceName);
         Bundle extras = new Bundle();
-        extras.putInt("RESULT", result);
+        extras.putInt(Constants.Result, result);
         broadcastIntent.putExtras(extras);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
         localBroadcastManager.sendBroadcast(broadcastIntent);
