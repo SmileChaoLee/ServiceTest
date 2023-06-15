@@ -18,36 +18,11 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MyBoundService extends Service {
-
-    public static final String ActionName = "com.smile.servicetest.MyBoundService";
-    public static final int ErrorCode = -1;
-    public static final int ServiceStopped = 0;
-    public static final int ServiceStarted = 1;
-    public static final int ServiceBound = 2;
-    public static final int ServiceUnbound = 3;
-    public static final int MusicPlaying = 4;
-    public static final int MusicPaused = 5;
-    public static final int MusicStopped = 6;
-    public static final int MusicLoaded = 7;
-    public static final int StopService = 101;
-    public static final int PlayMusic = 102;
-    public static final int PauseMusic = 103;
-    public static final int StopMusic = 104;
-    public static final int AskStatus = 201;
-    public static final int MusicStatus = 202;
-    public static final int BinderIPC = 11;
-    public static final int MessengerIPC = 12;
-
-    public static final String BINDER_OR_MESSENGER_KEY = "BINDER_OR_MESSENGER";
-    public static final String MyBoundServiceChannelName = "com.smile.servicetest.MyBoundService.ANDROID";
-    public static final String MyBoundServiceChannelID = "com.smile.servicetest.MyBoundService.CHANNEL_ID";
-    public static final int MyBoundServiceNotificationID = 1;
-
     private static String TAG = "MyBoundService";
     private MediaPlayer mediaPlayer = null;
     private boolean isMusicLoaded = false;
     private boolean isMusicPlaying = false;
-    private int binderOrMessenger = BinderIPC;
+    private int binderOrMessenger = Constants.BinderIPC;
 
     // create a Binder for communicate with clients using this Binder
     private IBinder serviceBinder = new ServiceBinder();
@@ -66,23 +41,23 @@ public class MyBoundService extends Service {
         @Override
         public void handleMessage(Message msg) {
             Log.d(TAG, "ServiceHandler.msg.what = " + msg.what);
-            int result = ErrorCode;
+            int result = Constants.ErrorCode;
             int arg1 = 0, arg2 = 0;
             switch (msg.what) {
-                case StopService:
+                case Constants.StopService:
                     result = terminateService();
                     break;
-                case PlayMusic:
+                case  Constants.PlayMusic:
                     result = playMusic();
                     break;
-                case PauseMusic:
+                case Constants.PauseMusic:
                     result = pauseMusic();
                     break;
-                case StopMusic:
+                case Constants.StopMusic:
                     result = stopMusic();
                     break;
-                case AskStatus:
-                    result = MusicStatus;
+                case Constants.AskStatus:
+                    result = Constants.MusicStatus;
                     Log.d(TAG, "ServiceHandler.isMusicLoaded = " + isMusicLoaded);
                     Log.d(TAG, "ServiceHandler.isMusicPlaying = " + isMusicPlaying);
                     arg1 = isMusicLoaded? 1 : 0;
@@ -118,12 +93,12 @@ public class MyBoundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG,"onStartCommand()");
         Bundle extras = intent.getExtras();
-        binderOrMessenger = BinderIPC;  // default connection is IBinder
+        binderOrMessenger = Constants.BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
-            Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(Constants.BINDER_OR_MESSENGER_KEY);
+            Log.d(TAG, Constants.BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
-        broadcastResult(ServiceStarted);
+        broadcastResult(Constants.ServiceStarted);
         Log.d(TAG, "onStartCommand.binderOrMessenger = " + binderOrMessenger);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -131,14 +106,14 @@ public class MyBoundService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Bundle extras = intent.getExtras();
-        binderOrMessenger = BinderIPC;  // default connection is IBinder
+        binderOrMessenger = Constants.BinderIPC;  // default connection is IBinder
         if (extras != null) {
-            binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
-            Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
+            binderOrMessenger = extras.getInt(Constants.BINDER_OR_MESSENGER_KEY);
+            Log.d(TAG, Constants.BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
         Log.d(TAG, "onBind.binderOrMessenger = " + binderOrMessenger);
-        broadcastResult(ServiceBound);
-        if (binderOrMessenger == MessengerIPC) {
+        broadcastResult(Constants.ServiceBound);
+        if (binderOrMessenger == Constants.MessengerIPC) {
             return serviceMessenger.getBinder();
         } else {
             // using IBinder to connect
@@ -150,7 +125,7 @@ public class MyBoundService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind");
         pauseMusic();
-        broadcastResult(ServiceUnbound);
+        broadcastResult(Constants.ServiceUnbound);
         return super.onUnbind(intent);
     }
 
@@ -176,16 +151,16 @@ public class MyBoundService extends Service {
         return isMusicPlaying;
     }
     public int playMusic() {
-        int result = ErrorCode;
+        int result = Constants.ErrorCode;
         if (mediaPlayer != null) {
             if (!mediaPlayer.isPlaying()) {
                 mediaPlayer.start();
-                result = MusicPlaying;
+                result = Constants.MusicPlaying;
                 isMusicPlaying = true;
             }
         }
         Log.d(TAG, "playMusic.result = " + result);
-        if (binderOrMessenger == BinderIPC) {
+        if (binderOrMessenger == Constants.BinderIPC) {
             // send broadcast to receiver
             broadcastResult(result);
         } else {
@@ -196,18 +171,18 @@ public class MyBoundService extends Service {
     }
 
     public int pauseMusic() {
-        int result = ErrorCode;
+        int result = Constants.ErrorCode;
         if (mediaPlayer != null) {
             Log.d(TAG, "mediaPlayer not null");
             if (mediaPlayer.isPlaying()) {
                 Log.d(TAG, "mediaPlayer.isPlaying() is true");
                 mediaPlayer.pause();
-                result = MusicPaused;
+                result = Constants.MusicPaused;
                 isMusicPlaying = false;
             }
         }
         Log.d(TAG, "pauseMusic.result = " + result);
-        if (binderOrMessenger == BinderIPC) {
+        if (binderOrMessenger == Constants.BinderIPC) {
             // send broadcast to receiver
             broadcastResult(result);
         } else {
@@ -217,14 +192,14 @@ public class MyBoundService extends Service {
         return result;
     }
     public int stopMusic() {
-        int result = ErrorCode;
+        int result = Constants.ErrorCode;
         if (mediaPlayer != null) {
             mediaPlayer.stop();
-            result = MusicStopped;
+            result = Constants.MusicStopped;
             isMusicPlaying = false;
         }
         Log.d(TAG, "stopMusic.result = " + result);
-        if (binderOrMessenger == BinderIPC) {
+        if (binderOrMessenger == Constants.BinderIPC) {
             // send broadcast to receiver
             broadcastResult(result);
         } else {
@@ -239,8 +214,8 @@ public class MyBoundService extends Service {
         isMusicLoaded = false;
         isMusicPlaying = false;
         stopSelf();
-        int result = ServiceStopped;
-        if (binderOrMessenger == BinderIPC) {
+        int result = Constants.ServiceStopped;
+        if (binderOrMessenger == Constants.BinderIPC) {
             // send broadcast to receiver
             broadcastResult(result);
         } else {
@@ -252,12 +227,12 @@ public class MyBoundService extends Service {
 
     private int loadMusic() {
         isMusicPlaying = false;
-        int result = ErrorCode;
+        int result = Constants.ErrorCode;
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.music_a);
             if (mediaPlayer != null) {
                 mediaPlayer.setLooping(true);
-                result = MusicLoaded;
+                result = Constants.MusicLoaded;
                 isMusicLoaded = true;
             }
         }
@@ -268,7 +243,7 @@ public class MyBoundService extends Service {
 
     private void broadcastResult(int result) {
         Log.d(TAG, "broadcastResult");
-        Intent broadcastIntent = new Intent(ActionName);
+        Intent broadcastIntent = new Intent(Constants.ServiceName);
         Bundle extras = new Bundle();
         extras.putInt("RESULT", result);
         broadcastIntent.putExtras(extras);

@@ -84,7 +84,7 @@ public class IBinderActivity extends AppCompatActivity {
 
         receiver = new boundServiceReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(MyBoundService.ActionName);
+        filter.addAction(Constants.ServiceName);
         // global registration
         //registerReceiver(receiver, filter);
         // local registration
@@ -180,7 +180,7 @@ public class IBinderActivity extends AppCompatActivity {
             Intent bindServiceIntent = new Intent(this, MyBoundService.class);
             // parameters for this Intent
             Bundle extras = new Bundle();
-            extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.BinderIPC);
+            extras.putInt(Constants.BINDER_OR_MESSENGER_KEY, Constants.BinderIPC);
             bindServiceIntent.putExtras(extras);
             isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
         }
@@ -200,12 +200,12 @@ public class IBinderActivity extends AppCompatActivity {
                 return;
             }
             String action = intent.getAction();
-            if (action.equals(MyBoundService.ActionName)) {
+            if (action.equals(Constants.ServiceName)) {
                 Bundle extras = intent.getExtras();
                 int result = extras.getInt("RESULT");
                 Log.d(TAG,"onReceive.result = " + result);
                 switch(result) {
-                    case MyBoundService.ServiceStarted:
+                    case Constants.ServiceStarted:
                         Log.d(TAG, "ServiceStarted received");
                         messageText.setText("BoundService started.");
                         bindServiceButton.setEnabled(true);
@@ -213,7 +213,7 @@ public class IBinderActivity extends AppCompatActivity {
                         playButton.setEnabled(false);
                         pauseButton.setEnabled(false);
                         break;
-                    case MyBoundService.ServiceBound:
+                    case Constants.ServiceBound:
                         Log.d(TAG, "ServiceBound received");
                         messageText.setText("BoundService Bound.");
                         bindServiceButton.setEnabled(false);
@@ -225,7 +225,7 @@ public class IBinderActivity extends AppCompatActivity {
                             pauseButton.setEnabled(myBoundService.isMusicPlaying());
                         }
                         break;
-                    case MyBoundService.ServiceUnbound:
+                    case Constants.ServiceUnbound:
                         Log.d(TAG,"ServiceUnbound received");
                         messageText.setText("BoundService unbound.");
                         bindServiceButton.setEnabled(true);
@@ -233,7 +233,7 @@ public class IBinderActivity extends AppCompatActivity {
                         playButton.setEnabled(false);
                         pauseButton.setEnabled(false);
                         break;
-                    case MyBoundService.ServiceStopped:
+                    case Constants.ServiceStopped:
                         Log.d(TAG,"ServiceStopped received");
                         messageText.setText("BoundService stopped.");
                         bindServiceButton.setEnabled(false);
@@ -241,7 +241,7 @@ public class IBinderActivity extends AppCompatActivity {
                         playButton.setEnabled(false);
                         pauseButton.setEnabled(false);
                         break;
-                    case MyBoundService.MusicPlaying:
+                    case Constants.MusicPlaying:
                         Log.d(TAG,"MusicPlaying received");
                         messageText.setText("Music playing.");
                         if (isServiceBound) {
@@ -249,7 +249,7 @@ public class IBinderActivity extends AppCompatActivity {
                             pauseButton.setEnabled(true);
                         }
                         break;
-                    case MyBoundService.MusicPaused:
+                    case Constants.MusicPaused:
                         Log.d(TAG,"MusicPaused received");
                         messageText.setText("Music paused.");
                         if (isServiceBound) {
@@ -257,7 +257,7 @@ public class IBinderActivity extends AppCompatActivity {
                             pauseButton.setEnabled(false);
                         }
                         break;
-                    case MyBoundService.MusicStopped:
+                    case Constants.MusicStopped:
                         Log.d(TAG,"MusicStopped received");
                         messageText.setText("Music stopped.");
                         if (isServiceBound) {
@@ -265,7 +265,7 @@ public class IBinderActivity extends AppCompatActivity {
                             pauseButton.setEnabled(false);
                         }
                         break;
-                    case MyBoundService.MusicLoaded:
+                    case Constants.MusicLoaded:
                         Log.d(TAG,"MusicLoaded received");
                         messageText.setText("Music Loaded.");
                         break;

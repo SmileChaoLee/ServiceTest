@@ -11,13 +11,14 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MessengerActivity extends AppCompatActivity {
 
@@ -44,7 +45,7 @@ public class MessengerActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             Log.d(TAG,"handleMessage.msg.what = " + msg.what);
             switch (msg.what) {
-                case MyBoundService.ServiceStopped:
+                case Constants.ServiceStopped:
                     Log.d(TAG,"ServiceStopped received");
                     messageText.setText("BoundService stopped.");
                     bindServiceButton.setEnabled(false);
@@ -52,7 +53,7 @@ public class MessengerActivity extends AppCompatActivity {
                     playButton.setEnabled(false);
                     pauseButton.setEnabled(false);
                     break;
-                case MyBoundService.ServiceStarted:
+                case Constants.ServiceStarted:
                     Log.d(TAG,"ServiceStarted received");
                     messageText.setText("BoundService started.");
                     bindServiceButton.setEnabled(true);
@@ -60,7 +61,7 @@ public class MessengerActivity extends AppCompatActivity {
                     playButton.setEnabled(false);
                     pauseButton.setEnabled(false);
                     break;
-                case MyBoundService.MusicPlaying:
+                case Constants.MusicPlaying:
                     Log.d(TAG,"MusicPlaying received");
                     messageText.setText("Music playing.");
                     if (isServiceBound) {
@@ -68,7 +69,7 @@ public class MessengerActivity extends AppCompatActivity {
                         pauseButton.setEnabled(true);
                     }
                     break;
-                case MyBoundService.MusicPaused:
+                case Constants.MusicPaused:
                     Log.d(TAG,"MusicPaused received");
                     messageText.setText("Music paused.");
                     if (isServiceBound) {
@@ -76,7 +77,7 @@ public class MessengerActivity extends AppCompatActivity {
                         pauseButton.setEnabled(false);
                     }
                     break;
-                case MyBoundService.MusicStopped:
+                case Constants.MusicStopped:
                     Log.d(TAG,"MusicStopped received");
                     messageText.setText("Music stopped.");
                     if (isServiceBound) {
@@ -84,7 +85,7 @@ public class MessengerActivity extends AppCompatActivity {
                         pauseButton.setEnabled(false);
                     }
                     break;
-                case MyBoundService.MusicLoaded:
+                case Constants.MusicLoaded:
                     Log.d(TAG,"MusicLoaded received");
                     messageText.setText("Music Loaded.");
                     if (isServiceBound) {
@@ -92,7 +93,7 @@ public class MessengerActivity extends AppCompatActivity {
                         pauseButton.setEnabled(false);
                     }
                     break;
-                case MyBoundService.MusicStatus:
+                case Constants.MusicStatus:
                     Log.d(TAG,"MusicStatus received.isServiceBound = "
                             + isServiceBound);
                     if (isServiceBound) {
@@ -141,7 +142,7 @@ public class MessengerActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if ((sendMessenger != null) && (isServiceBound)) {
                     // play music
-                    Message msg = Message.obtain(null, MyBoundService.PlayMusic, 0, 0);
+                    Message msg = Message.obtain(null, Constants.PlayMusic, 0, 0);
                     try {
                         msg.replyTo = clientMessenger;
                         sendMessenger.send(msg);
@@ -157,7 +158,7 @@ public class MessengerActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if ((sendMessenger != null) && (isServiceBound)) {
                     // pause music
-                    Message msg = Message.obtain(null, MyBoundService.PauseMusic, 0, 0);
+                    Message msg = Message.obtain(null, Constants.PauseMusic, 0, 0);
                     try {
                         msg.replyTo = clientMessenger;
                         sendMessenger.send(msg);
@@ -191,7 +192,7 @@ public class MessengerActivity extends AppCompatActivity {
                 isServiceBound = true;
                 bindServiceButton.setEnabled(false);
                 unbindServiceButton.setEnabled(true);
-                Message msg = Message.obtain(null, MyBoundService.AskStatus, 0, 0);
+                Message msg = Message.obtain(null, Constants.AskStatus, 0, 0);
                 try {
                     msg.replyTo = clientMessenger;
                     sendMessenger.send(msg);
@@ -263,7 +264,7 @@ public class MessengerActivity extends AppCompatActivity {
             Intent bindServiceIntent = new Intent(MessengerActivity.this, MyBoundService.class);
             // parameters for this Intent
             Bundle extras = new Bundle();
-            extras.putInt(MyBoundService.BINDER_OR_MESSENGER_KEY, MyBoundService.MessengerIPC);
+            extras.putInt(Constants.BINDER_OR_MESSENGER_KEY, Constants.MessengerIPC);
             bindServiceIntent.putExtras(extras);
             isServiceBound = bindService(bindServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
         }
@@ -271,7 +272,7 @@ public class MessengerActivity extends AppCompatActivity {
 
     private void stopMusicService() {
         Log.d(TAG, "stopMusicService");
-        Message msg = Message.obtain(null, MyBoundService.ServiceStopped, 0, 0);
+        Message msg = Message.obtain(null, Constants.ServiceStopped, 0, 0);
         try {
             msg.replyTo = clientMessenger;
             sendMessenger.send(msg);
