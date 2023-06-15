@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
         statusText.setText("");
 
-        Intent intent = new Intent(MainActivity.this, BoundServiceByIBinderActivity.class);
+        Intent intent = new Intent(MainActivity.this, IBinderActivity.class);
         startActivity(intent);
     }
 
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
         statusText.setText("");
 
-        Intent intent = new Intent(MainActivity.this, BoundServiceByMessengerActivity.class);
+        Intent intent = new Intent(MainActivity.this, MessengerActivity.class);
         startActivity(intent);
     }
 

@@ -20,21 +20,33 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 public class MyBoundService extends Service {
 
     public static final String ActionName = "com.smile.servicetest.MyBoundService";
-    public static final int ServiceStopped = 0x00;
-    public static final int ServiceStarted = 0x01;
-    public static final int MusicPlaying = 0x02;
-    public static final int MusicPaused = 0x03;
-    public static final int BinderIPC = 1;
-    public static final int MessengerIPC = 2;
+    public static final int ErrorCode = -1;
+    public static final int ServiceStopped = 0;
+    public static final int ServiceStarted = 1;
+    public static final int ServiceBound = 2;
+    public static final int ServiceUnbound = 3;
+    public static final int MusicPlaying = 4;
+    public static final int MusicPaused = 5;
+    public static final int MusicStopped = 6;
+    public static final int MusicLoaded = 7;
+    public static final int StopService = 101;
+    public static final int PlayMusic = 102;
+    public static final int PauseMusic = 103;
+    public static final int StopMusic = 104;
+    public static final int AskStatus = 201;
+    public static final int MusicStatus = 202;
+    public static final int BinderIPC = 11;
+    public static final int MessengerIPC = 12;
 
     public static final String BINDER_OR_MESSENGER_KEY = "BINDER_OR_MESSENGER";
     public static final String MyBoundServiceChannelName = "com.smile.servicetest.MyBoundService.ANDROID";
     public static final String MyBoundServiceChannelID = "com.smile.servicetest.MyBoundService.CHANNEL_ID";
     public static final int MyBoundServiceNotificationID = 1;
 
-    private String TAG = "com.smile.servicetest.MyBoundService";
+    private static String TAG = "MyBoundService";
     private MediaPlayer mediaPlayer = null;
-    private Thread backgroundThread = null;
+    private boolean isMusicLoaded = false;
+    private boolean isMusicPlaying = false;
     private int binderOrMessenger = BinderIPC;
 
     // create a Binder for communicate with clients using this Binder
@@ -53,34 +65,42 @@ public class MyBoundService extends Service {
         }
         @Override
         public void handleMessage(Message msg) {
+            Log.d(TAG, "ServiceHandler.msg.what = " + msg.what);
+            int result = ErrorCode;
+            int arg1 = 0, arg2 = 0;
             switch (msg.what) {
-                case ServiceStopped:
-                    Log.d(TAG, "Terminating.");
-                    terminateService();
+                case StopService:
+                    result = terminateService();
                     break;
-                case ServiceStarted:
-                    // does not do anything
+                case PlayMusic:
+                    result = playMusic();
                     break;
-                case MusicPlaying:
-                    playMusic();
+                case PauseMusic:
+                    result = pauseMusic();
                     break;
-                case MusicPaused:
-                    pauseMusic();
+                case StopMusic:
+                    result = stopMusic();
                     break;
+                case AskStatus:
+                    result = MusicStatus;
+                    Log.d(TAG, "ServiceHandler.isMusicLoaded = " + isMusicLoaded);
+                    Log.d(TAG, "ServiceHandler.isMusicPlaying = " + isMusicPlaying);
+                    arg1 = isMusicLoaded? 1 : 0;
+                    arg2 = isMusicPlaying? 1 : 0;
+                    Log.d(TAG, "ServiceHandler.arg1 = " + arg1);
+                    Log.d(TAG, "ServiceHandler.arg2 = " + arg2);
                 default:
                     super.handleMessage(msg);
                     break;
             }
-
             // setting response message
-            Message responseMsg = Message.obtain(null, msg.what, 0, 0);
-            // send message back to client
+            Message responseMsg = Message.obtain(null, result, arg1, arg2);
             try {
+                // send message back to client
                 msg.replyTo.send(responseMsg);
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
-
         }
     }
 
@@ -91,54 +111,33 @@ public class MyBoundService extends Service {
     public void onCreate() {
         Log.d(TAG,"onCreate()");
         super.onCreate();
-        backgroundThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG,"backgroundThread running");
-                startMusic();
-            }
-        });
-        backgroundThread.start();
+        loadMusic();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG,"onStartCommand()");
-
         Bundle extras = intent.getExtras();
         binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
             binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
             Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
-
-        if (binderOrMessenger == BinderIPC) {
-            // send broadcast to receiver
-            Intent broadcastIntent = new Intent(ActionName);
-            extras = new Bundle();
-            extras.putInt("RESULT", ServiceStarted);
-            broadcastIntent.putExtras(extras);
-
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
-            localBroadcastManager.sendBroadcast(broadcastIntent);
-        } else {
-            // MessengerIPC -> send message back to client
-
-        }
-
+        broadcastResult(ServiceStarted);
+        Log.d(TAG, "onStartCommand.binderOrMessenger = " + binderOrMessenger);
         return super.onStartCommand(intent, flags, startId);
-
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind()");
         Bundle extras = intent.getExtras();
         binderOrMessenger = BinderIPC;  // default connection is IBinder
         if (extras != null) {
             binderOrMessenger = extras.getInt(BINDER_OR_MESSENGER_KEY);
             Log.d(TAG, BINDER_OR_MESSENGER_KEY + " = " + binderOrMessenger);
         }
+        Log.d(TAG, "onBind.binderOrMessenger = " + binderOrMessenger);
+        broadcastResult(ServiceBound);
         if (binderOrMessenger == MessengerIPC) {
             return serviceMessenger.getBinder();
         } else {
@@ -149,124 +148,147 @@ public class MyBoundService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "onUnbind() called");
+        Log.d(TAG, "onUnbind");
+        pauseMusic();
+        broadcastResult(ServiceUnbound);
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
-        Log.d(TAG, "onDestroy() called");
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
         }
-
-        Thread dummy = backgroundThread;
-        backgroundThread = null;
-        dummy.interrupt();
-
         serviceBinder = null;
         serviceMessenger = null;
+        isMusicLoaded = false;
+        isMusicPlaying = false;
     }
 
-    public void playMusic() {
+    public boolean isMusicLoaded() {
+        return isMusicLoaded;
+    }
+    public boolean isMusicPlaying() {
+        return isMusicPlaying;
+    }
+    public int playMusic() {
+        int result = ErrorCode;
         if (mediaPlayer != null) {
-
             if (!mediaPlayer.isPlaying()) {
                 mediaPlayer.start();
-
-                if (binderOrMessenger == BinderIPC) {
-                    // send broadcast to receiver
-                    Intent broadcastIntent = new Intent(ActionName);
-                    Bundle extras = new Bundle();
-                    extras.putInt("RESULT", MusicPlaying);
-                    broadcastIntent.putExtras(extras);
-
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                } else {
-                    // send message back to client
-                }
+                result = MusicPlaying;
+                isMusicPlaying = true;
             }
         }
-
-    }
-
-    public void pauseMusic() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-
-                if (binderOrMessenger == BinderIPC) {
-                    // send broadcast to receiver
-                    Intent broadcastIntent = new Intent(ActionName);
-                    Bundle extras = new Bundle();
-                    extras.putInt("RESULT", MusicPaused);
-                    broadcastIntent.putExtras(extras);
-
-                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
-                    localBroadcastManager.sendBroadcast(broadcastIntent);
-                } else {
-                    // send message back to client
-                }
-
-            }
-        }
-
-    }
-
-    public boolean isMusicPlaying() {
-
-        boolean isMediaPlaying = false;
-        if (mediaPlayer != null) {
-            isMediaPlaying = mediaPlayer.isPlaying();
-        }
-        return isMediaPlaying;
-    }
-
-    public void terminateService() {
-        Log.d(TAG, "stopSelf()ing.");
-        stopSelf();
+        Log.d(TAG, "playMusic.result = " + result);
         if (binderOrMessenger == BinderIPC) {
             // send broadcast to receiver
-            Intent broadcastIntent = new Intent(ActionName);
-            Bundle extras = new Bundle();
-            extras.putInt("RESULT", ServiceStopped);
-            broadcastIntent.putExtras(extras);
-
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
-            localBroadcastManager.sendBroadcast(broadcastIntent);
+            broadcastResult(result);
         } else {
             // send message back to client
+            // Implemented in ServiceHandler
         }
+        return result;
     }
 
-    private void startMusic() {
+    public int pauseMusic() {
+        int result = ErrorCode;
+        if (mediaPlayer != null) {
+            Log.d(TAG, "mediaPlayer not null");
+            if (mediaPlayer.isPlaying()) {
+                Log.d(TAG, "mediaPlayer.isPlaying() is true");
+                mediaPlayer.pause();
+                result = MusicPaused;
+                isMusicPlaying = false;
+            }
+        }
+        Log.d(TAG, "pauseMusic.result = " + result);
+        if (binderOrMessenger == BinderIPC) {
+            // send broadcast to receiver
+            broadcastResult(result);
+        } else {
+            // send message back to client
+            // Implemented in ServiceHandler
+        }
+        return result;
+    }
+    public int stopMusic() {
+        int result = ErrorCode;
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            result = MusicStopped;
+            isMusicPlaying = false;
+        }
+        Log.d(TAG, "stopMusic.result = " + result);
+        if (binderOrMessenger == BinderIPC) {
+            // send broadcast to receiver
+            broadcastResult(result);
+        } else {
+            // send message back to client
+            // Implemented in ServiceHandler
+        }
+        return result;
+    }
+
+    public int terminateService() {
+        Log.d(TAG, "terminateService");
+        isMusicLoaded = false;
+        isMusicPlaying = false;
+        stopSelf();
+        int result = ServiceStopped;
+        if (binderOrMessenger == BinderIPC) {
+            // send broadcast to receiver
+            broadcastResult(result);
+        } else {
+            // send message back to client
+            // Implemented in ServiceHandler
+        }
+        return result;
+    }
+
+    private int loadMusic() {
+        isMusicPlaying = false;
+        int result = ErrorCode;
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(getApplicationContext(),R.raw.music_a);
             if (mediaPlayer != null) {
                 mediaPlayer.setLooping(true);
-                mediaPlayer.start();
+                result = MusicLoaded;
+                isMusicLoaded = true;
             }
         }
+        Log.d(TAG, "loadMusic.result = " + result);
+        broadcastResult(result);
+        return result;
+    }
+
+    private void broadcastResult(int result) {
+        Log.d(TAG, "broadcastResult");
+        Intent broadcastIntent = new Intent(ActionName);
+        Bundle extras = new Bundle();
+        extras.putInt("RESULT", result);
+        broadcastIntent.putExtras(extras);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
+        localBroadcastManager.sendBroadcast(broadcastIntent);
     }
 
     public static boolean isServiceRunning(Context context) {
-        if (context == null) {
-            return false;
-        }
-
-        Class<?> serviceClass = MyBoundService.class;
-        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
-        // ActivityManager.getRunningServices() deprecated at API 26 and higher
-        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
-                return true;
+        boolean isRunning = false;
+        if (context != null) {
+            Class<?> serviceClass = MyBoundService.class;
+            ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+            // ActivityManager.getRunningServices() deprecated at API 26 and higher
+            for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                    isRunning = true;
+                }
             }
         }
-
-        return false;
+        Log.d(TAG, "isServiceRunning.isRunning = " + isRunning);
+        return isRunning;
     }
 }

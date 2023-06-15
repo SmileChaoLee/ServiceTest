@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.smile.servicetest">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MyBoundService" />
 
     <application
@@ -24,12 +22,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BoundServiceByIBinderActivity"
+            android:name=".IBinderActivity"
             android:label="@string/title_activity_bound_service_by_ibinder"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".BoundServiceByMessengerActivity"
+            android:name=".MessengerActivity"
             android:label="@string/title_activity_bound_service_by_ibinder"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
