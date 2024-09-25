@@ -154,6 +154,8 @@ public class MyBoundService extends Service {
         int result = Constants.ErrorCode;
         if (mediaPlayer != null) {
             if (!mediaPlayer.isPlaying()) {
+                mediaPlayer = null; // for testing service crash
+                Log.d(TAG, "playMusic.mediaPlayer.start()");
                 mediaPlayer.start();
                 result = Constants.MusicPlaying;
                 isMusicPlaying = true;

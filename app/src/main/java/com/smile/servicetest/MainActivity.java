@@ -1,12 +1,15 @@
 package com.smile.servicetest;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     // private static final int REQUEST_CODE_ASK_PERMISSIONS = 213;
     private BroadcastReceiver receiver = null;
     public TextView statusText = null;
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadIntentService.ActionName);
-        filter.addAction(MyStartedService.ActionName);
+        filter.addAction(MyStartedService2.ActionName);
         // registerReceiver(receiver, filter);  // use global broadcast receiver
 
         // use Local Broadcast receiver
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         statusText.setText("StartedService started !!");
 
-        Intent intent = new Intent(this,MyStartedService.class);
+        Intent intent = new Intent(this,MyStartedService2.class);
         startService(intent);
 
     }
@@ -107,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         statusText.setText("");
 
         Intent intent = new Intent(MainActivity.this, IBinderActivity.class);
+        // for testing activity crash
+        // intent = null;
         startActivity(intent);
     }
 
@@ -149,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                         statusText.setText("Download failed !!");
                     }
                     break;
-                case MyStartedService.ActionName:
+                case MyStartedService2.ActionName:
                     extras = intent.getExtras();
                     int sum = extras.getInt("SUM");
                     statusText.setText("Calculated (" + sum + ") !!");
@@ -164,4 +170,65 @@ public class MainActivity extends AppCompatActivity {
             buttonBoundServiceByMessenger.setEnabled(true);
         }
     }
+
+    public static class MyStartedService2 extends Service {
+
+        public MyStartedService2() {
+
+        }
+
+        public static final String ActionName = "MyStartedService2";
+
+        @Override
+        public void onCreate() {
+            Log.d(TAG, "MyStartedService2.onCreate");
+            super.onCreate();
+        }
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            // return super.onStartCommand(intent, flags, startId);
+            Log.d(TAG, "MyStartedService2.onStartCommand");
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+
+                    int sum = 0;    // the sum of 1 ~ 100
+                    for (int i=1; i<=100; i++) {
+                        sum += i;
+                    }
+                    stopSelf();
+
+                    // sending broadcast
+                    // String notification = getApplicationContext().getPackageName();
+                    // String ActionName = getApplicationContext().getClass().getName();
+
+                    Intent notificationIntent = new Intent(ActionName);
+                    Bundle extras = new Bundle();
+                    extras.putInt("SUM", sum);
+                    notificationIntent.putExtras(extras);
+
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+                    localBroadcastManager.sendBroadcast(notificationIntent);
+                }
+            };
+
+            thread.start();
+
+            return START_STICKY;
+        }
+
+        @Override
+        public void onDestroy() {
+            Log.d(TAG, "MyStartedService2.onDestroy");
+            super.onDestroy();
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            // TODO: Return the communication channel to the service.
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+    }
+
 }

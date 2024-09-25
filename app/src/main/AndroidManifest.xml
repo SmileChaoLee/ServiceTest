@@ -41,6 +41,8 @@
             android:enabled="true"
             android:exported="false" />
         <service
+            android:name=".MainActivity$MyStartedService2" />
+        <service
             android:name=".MyBoundService"
             android:enabled="true"
             android:exported="true">
